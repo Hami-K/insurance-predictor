@@ -194,15 +194,28 @@ st.markdown("""
 # ─────────────────────────────────────────
 # MODEL LOAD
 # ─────────────────────────────────────────
+from pathlib import Path
+
 @st.cache_resource
 def load_artifacts():
     try:
-        model        = joblib.load("exports/lgb_model.sav")
-        scaler       = joblib.load("exports/scaler.sav")
-        premium_bins = joblib.load("exports/premium_bins.sav")
+        BASE_DIR = Path(__file__).parent
+
+        model = joblib.load(BASE_DIR / "exports" / "lgb_model.sav")
+        scaler = joblib.load(BASE_DIR / "exports" / "scaler.sav")
+        premium_bins = joblib.load(BASE_DIR / "exports" / "premium_bins.sav")
+
         return model, scaler, premium_bins, True
-    except FileNotFoundError:
-        return None, None, [2630, 24875, 31785, 39526, 56295, 540165], False
+
+    except Exception as e:
+        st.error(f"Error loading model files: {e}")
+
+        return (
+            None,
+            None,
+            [2630, 24875, 31785, 39526, 56295, 540165],
+            False,
+        )
 
 model, scaler, premium_bins, MODEL_LOADED = load_artifacts()
 
